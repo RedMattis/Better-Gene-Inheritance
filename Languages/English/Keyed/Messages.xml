@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+  <BGI_InheritSharedArchite>Archite Genes are inheritable, but only if shared by both parents.</BGI_InheritSharedArchite>
+  <BGI_InheritArchite>Archite Genes are inheritable.</BGI_InheritArchite>
+  <BGI_InheritXeno>Xenogenes can be inherited along with the endogenes.</BGI_InheritXeno>
+  <BGInheritance>Better Gene Inheritance</BGInheritance>
+  <BGI_MetabolismLimit>Lowest permitted metabolism</BGI_MetabolismLimit>
+
+</LanguageData>

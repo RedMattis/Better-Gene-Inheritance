@@ -1,0 +1,76 @@
+<Defs>
+  <GeneDef>
+    <defName>BGI_DominantGenes</defName>
+    <label>Dominant Genes</label>
+    <description>Carriers of this gene will have all their genes passed down to their offspring, ignoring any genes from their partner unless they also possess this gene.</description>
+    <iconPath>GeneIcons/BGI_DominantGenes</iconPath>
+    <displayCategory>Reproduction</displayCategory>
+    <displayOrderInCategory>1059</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <exclusionTags>
+      <li>Inheritance</li>
+      <li>VRE_Dominance</li>
+    </exclusionTags>
+    <marketValueFactor>1</marketValueFactor>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>BGI_RecessiveGenes</defName>
+    <label>Recessive Genes</label>
+    <description>Carriers of this gene will have none of their genes passed down to their offspring, taking only genes from their partner unless they also possess this gene.</description>
+    <iconPath>GeneIcons/BGI_RecessiveGenes</iconPath>
+    <displayCategory>Reproduction</displayCategory>
+    <displayOrderInCategory>1059</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <exclusionTags>
+      <li>Inheritance</li>
+      <li>VRE_Dominance</li>
+    </exclusionTags>
+    <marketValueFactor>1</marketValueFactor>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>BGI_BinaryInheritance</defName>
+    <label>Binary Inheritance</label>
+    <description>If both the carrier of this gene AND their partner have this gene then a full geneset will be picked from one parent or the other.\n\nThis gene is commonly found among xenotypes with castes or extreme sexual dimorphism.\n\nThis can be combined with dominant/recessive genes, which, if so, will take precedence over this gene.</description>
+    <iconPath>GeneIcons/BGI_BinaryGenes</iconPath>
+    <displayCategory>Reproduction</displayCategory>
+    <displayOrderInCategory>1059</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <marketValueFactor>1</marketValueFactor>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>BGI_PrimaryGenes</defName>
+    <label>Primary Genes</label>
+    <description>Carriers of this gene will have their genes be more prevalent in their offspring, especially when mixed with a baseliner.\n\nThis means they will usually pass down all their genes unless they conflict with those of the other parent.</description>
+    <iconPath>GeneIcons/BGI_PrimaryGenes</iconPath>
+    <displayCategory>Reproduction</displayCategory>
+    <displayOrderInCategory>1059</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <exclusionTags>
+      <li>BGI_InheritancePriority</li>
+    </exclusionTags>
+    <marketValueFactor>1</marketValueFactor>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>BGI_SecondaryGenes</defName>
+    <label>Secondary Genes</label>
+    <description>Carriers of this gene will have their genes be less prevalent in their offspring.\n\nhis means the other parent will usually pass down all their genes unless there is a conflict.</description>
+    <iconPath>GeneIcons/BGI_SecondaryGenes</iconPath>
+    <displayCategory>Reproduction</displayCategory>
+    <displayOrderInCategory>1059</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <exclusionTags>
+      <li>BGI_InheritancePriority</li>
+    </exclusionTags>
+    <marketValueFactor>1</marketValueFactor>
+  </GeneDef>
+
+</Defs>

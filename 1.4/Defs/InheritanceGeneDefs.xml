@@ -1,0 +1,33 @@
+<Defs>
+  <GeneDef>
+    <defName>BGI_DominantGenes</defName>
+    <label>Dominant Genes</label>
+    <description>Carriers of this gene will have all their genes passed down to their offspring, ignoring any genes from their partner unless they also possess this gene.</description>
+    <iconPath>GeneIcons/BGI_DominantGenes</iconPath>
+    <displayCategory>Reproduction</displayCategory>
+    <displayOrderInCategory>1059</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <exclusionTags>
+      <li>Inheritance</li>
+      <li>VRE_Dominance</li>
+    </exclusionTags>
+    <marketValueFactor>1</marketValueFactor>
+  </GeneDef>
+
+  <GeneDef>
+    <defName>BGI_RecessiveGenes</defName>
+    <label>Recessive Genes</label>
+    <description>Carriers of this gene will have none of their genes passed down to their offspring, taking only genes from their partner unless they also possess this gene.</description>
+    <iconPath>GeneIcons/BGI_RecessiveGenes</iconPath>
+    <displayCategory>Reproduction</displayCategory>
+    <displayOrderInCategory>1059</displayOrderInCategory>
+    <biostatCpx>1</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <exclusionTags>
+      <li>Inheritance</li>
+      <li>VRE_Dominance</li>
+    </exclusionTags>
+    <marketValueFactor>1</marketValueFactor>
+  </GeneDef>
+</Defs>
