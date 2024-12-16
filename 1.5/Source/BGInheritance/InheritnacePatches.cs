@@ -123,26 +123,25 @@ namespace BGInheritance
             List<Gene> geneSetB;
             if (settings.inheritXenoGenes)
             {
-                geneSetA = parentA.GenesListForReading.Where(x => x.Active).ToList();
-                geneSetB = parentB.GenesListForReading.Where(x => x.Active).ToList();
+                geneSetA = [.. parentA.GenesListForReading];
+                geneSetB = [.. parentB.GenesListForReading];
             }
             else
             {
-                geneSetA = parentA.Endogenes.Where(x => x.Active).ToList();
-                geneSetB = parentB.Endogenes.Where(x => x.Active).ToList();
+                geneSetA = [.. parentA.Endogenes];
+                geneSetB = [.. parentB.Endogenes];
             }
 
             var geneDefsA = geneSetA.Select(x => x.def).ToList();
             var geneDefsB = geneSetB.Select(x => x.def).ToList();
 
             bool parentAHasDominantGenes = geneSetA.Any(x => x.Active && (x.def.defName == "BGI_DominantGenes" || x.def.defName == "VRE_DominantGenome"));
-            bool parentBHasDominantGenes = geneSetB.Any(x => x.Active && (x.def.defName == "BGI_DominantGenes" || x.def.defName == "VRE_DominantGenome"));
             bool parentAHasRecessiveGenes = geneSetA.Any(x => x.Active && (x.def.defName == "BGI_RecessiveGenes" || x.def.defName == "VRE_RecessiveGenome"));
-            bool parentBHasRecessiveGenes = geneSetB.Any(x => x.Active && (x.def.defName == "BGI_RecessiveGenes" || x.def.defName == "VRE_RecessiveGenome"));
-
             bool parentAHasBinaryGenes = geneSetA.Any(x => x.Active && x.def.defName == "BGI_BinaryInheritance");
+
+            bool parentBHasDominantGenes = geneSetB.Any(x => x.Active && (x.def.defName == "BGI_DominantGenes" || x.def.defName == "VRE_DominantGenome"));
+            bool parentBHasRecessiveGenes = geneSetB.Any(x => x.Active && (x.def.defName == "BGI_RecessiveGenes" || x.def.defName == "VRE_RecessiveGenome"));
             bool parentBHasBinaryGenes = geneSetB.Any(x => x.Active && x.def.defName == "BGI_BinaryInheritance");
-            bool binaryInheritance = parentAHasBinaryGenes && parentBHasBinaryGenes;
 
             if (parentAHasDominantGenes && !parentBHasDominantGenes)
             {
@@ -160,6 +159,8 @@ namespace BGInheritance
             {
                 return geneDefsA;
             }
+
+            bool binaryInheritance = parentAHasBinaryGenes && parentBHasBinaryGenes;
 
             if (binaryInheritance)
             {
@@ -265,8 +266,9 @@ namespace BGInheritance
                     geneTracker.AddGene(gene, true);
                 }
 
-                // Remove all overriden genes from the baby pawn
-                foreach (var gene in geneTracker.GenesListForReading.Where(x => x.Overridden).ToList())
+                // Remove all overriden genes from the baby pawn. If it is a random chosen gene, there is a 50% chance it will be kept anyway.
+                // Not keeping all, because that just bloats the gene list too much.
+                foreach (var gene in geneTracker.GenesListForReading.Where(x => x.Overridden && (Rand.Chance(0.5f) && !x.def.randomChosen)).ToList())
                 {
                     geneTracker.RemoveGene(gene);
                 }
