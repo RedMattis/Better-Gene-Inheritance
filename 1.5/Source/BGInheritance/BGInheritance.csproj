@@ -64,8 +64,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BGInheritance.cs" />
+    <Compile Include="GeneFunctions.cs" />
     <Compile Include="HarmonyPatches.cs" />
     <Compile Include="InheritnacePatches.cs" />
+    <Compile Include="SettingsUI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
