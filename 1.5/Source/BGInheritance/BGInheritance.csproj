@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BGInheritance.cs" />
+    <Compile Include="External.cs" />
     <Compile Include="GeneFunctions.cs" />
     <Compile Include="HarmonyPatches.cs" />
     <Compile Include="InheritnacePatches.cs" />
