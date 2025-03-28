@@ -47,10 +47,10 @@ namespace BGInheritance
                 (var primaryTracker, var secondaryTracker) = GetGeneTrackerOrder(tracker1, tracker2);
 
                 __result = GeneFunctions.GetChildGenes(primaryTracker, secondaryTracker);
-                Log.Message($"Generated genes for child:\n" +
-                            $"Genes: {__result.Count}\n" +
-                            $"Metabolism: {__result.Sum(x => x.biostatMet)}\n" +
-                            $"Archite: {__result.Sum(x => x.biostatArc)}\n");
+                //Log.Message($"Generated genes for child:\n" +
+                //            $"Genes: {__result.Count}\n" +
+                //            $"Metabolism: {__result.Sum(x => x.biostatMet)}\n" +
+                //            $"Archite: {__result.Sum(x => x.biostatArc)}\n");
                 return false;
             }
             catch (Exception e)
