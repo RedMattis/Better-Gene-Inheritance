@@ -15,6 +15,52 @@ namespace BGInheritance
     [HarmonyPatch]
     public static class HarmonyPatches
     {
+        [HarmonyPatch(typeof(PregnancyUtility), nameof(PregnancyUtility.ApplyBirthOutcome))]
+        [HarmonyPostfix]
+        public static void ApplyBirthOutcomePostfix(Thing __result, RitualOutcomePossibility outcome, float quality, Precept_Ritual ritual, List<GeneDef> genes, Pawn geneticMother, Thing birtherThing, Pawn father = null, Pawn doctor = null, LordJob_Ritual lordJobRitual = null, RitualRoleAssignments assignments = null, bool preventLetter = false)
+        {
+            if (__result is Pawn baby && baby.genes?.GenesListForReading.Any() == true)
+            {
+                var parents = new List<Pawn> { father, geneticMother }.Where(x => x != null && x.genes?.GenesListForReading?.Any() == true).ToList();
+                if (parents.Count > 0)
+                {
+                    List<(Pawn pawn, float score)> parentScores = [];
+                    foreach (var parent in parents.Where(x => x.genes?.Xenotype != null))
+                    {
+                        var babyGeneDefs = baby.genes.GenesListForReading.Select(x => x.def);
+                        var parentXeno = parent.genes.Xenotype;
+                        var parentGenes = parentXeno.genes;
+                        const float negFactor = 0.35f;
+                        float score = parentGenes.Sum(x => babyGeneDefs.Contains(x) ? 1 : 0) / (float)parentGenes.Count;
+                        var notRandomNotCosmeticBabyGenes = babyGeneDefs.Where(x => !x.randomChosen && !(x.biostatMet == 0 && x.biostatArc == 0));
+                        float negativeScore = 0;
+                        if (notRandomNotCosmeticBabyGenes.Any())
+                        {
+                            negativeScore = notRandomNotCosmeticBabyGenes.Sum(x => !parentGenes.Contains(x) ? 1 : 0) / (float)parentGenes.Count;
+                        }
+                        parentScores.Add((parent, score - (negativeScore * negFactor)));
+                    }
+                    if (parentScores.Count > 0)
+                    {
+                        var (parent, score) = parentScores.OrderByDescending(x => x.score).First();
+                        if (score > 0.5f)
+                        {
+                            baby.genes.hybrid = false;
+                            baby.genes.SetXenotypeDirect(parent.genes.Xenotype);
+                            if (score < 0.8f)
+                            {
+                                baby.genes.xenotypeName = "Hybrid".Translate() + " " + parent.genes.Xenotype.LabelCap;
+                            }
+                        }
+                        else
+                        {
+                            baby.genes.hybrid = true;
+                            baby.genes.xenotypeName = "Hybrid".Translate();
+                        }
+                    }
+                }
+            }
+        }
         [HarmonyPatch(typeof(PregnancyUtility), nameof(PregnancyUtility.GetInheritedGenes),
         [
             typeof(Pawn),

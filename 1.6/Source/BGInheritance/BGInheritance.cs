@@ -94,7 +94,7 @@ namespace BGInheritance
             Scribe_Values.Look(ref secondMaxPercent, "secondMaxPercent", secondMaxPercentDefault);
             Scribe_Values.Look(ref inheritSharedArchiteGenes, "inheritSharedArchiteGenes", inheritSharedArchiteGenesDefault);
             Scribe_Values.Look(ref inheritArchiteGenes, "inheritArchiteGenes", inheritArchiteGenesDefault);
-            Scribe_Values.Look(ref inheritXenoGenes, "inheritXenoGenes", inheritXenoGenesDefault);
+            Scribe_Values.Look(ref inheritXenoGenes, "inheritXenoGenesNum", inheritXenoGenesDefault);
             Scribe_Values.Look(ref metabolismLimit, "metabolismLimit", metabolismLimitDefault);
             
         }
