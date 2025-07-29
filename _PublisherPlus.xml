@@ -2,6 +2,8 @@
 <Configuration>
   <Excluded>
     <exclude>.git</exclude>
-    <exclude>1.4\Source\BGInheritance\.vs</exclude>
+    <exclude>1.4\Source</exclude>
+    <exclude>1.5\Source</exclude>
+    <exclude>1.6\Source</exclude>
   </Excluded>
 </Configuration>

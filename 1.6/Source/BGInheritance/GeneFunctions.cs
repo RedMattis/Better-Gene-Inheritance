@@ -281,9 +281,9 @@ namespace BGInheritance
             exclusionList ??= new List<GeneDef>();
             int idx = 0;
             // Sum up the metabolism cost of the new genes
-            while (genes.GenesListForReading.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet) + initialMet < minMet || genes.GenesListForReading.Count <= 1 || idx > 200)
+            while (genes.GenesListForReading.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet) + initialMet < minMet || idx > 200)
             {
-                if (genes.GenesListForReading.Count == 1)
+                if (genes.GenesListForReading.Count <= 1)
                     break;
                 // Pick a random gene from the newGenes with a negative metabolism cost and remove it.
                 var geneToRemove = genes.GenesListForReading.Where(x => x.def.biostatMet < 0 && !exclusionList.Contains(x.def)).RandomElement();

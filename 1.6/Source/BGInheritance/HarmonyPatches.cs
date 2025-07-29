@@ -17,6 +17,7 @@ namespace BGInheritance
     {
         [HarmonyPatch(typeof(PregnancyUtility), nameof(PregnancyUtility.ApplyBirthOutcome))]
         [HarmonyPostfix]
+        [HarmonyPriority(Priority.Low)]
         public static void ApplyBirthOutcomePostfix(Thing __result, RitualOutcomePossibility outcome, float quality, Precept_Ritual ritual, List<GeneDef> genes, Pawn geneticMother, Thing birtherThing, Pawn father = null, Pawn doctor = null, LordJob_Ritual lordJobRitual = null, RitualRoleAssignments assignments = null, bool preventLetter = false)
         {
             if (__result is Pawn baby && baby.genes?.GenesListForReading.Any() == true)
@@ -25,42 +26,95 @@ namespace BGInheritance
                 if (parents.Count > 0)
                 {
                     List<(Pawn pawn, float score)> parentScores = [];
-                    foreach (var parent in parents.Where(x => x.genes?.Xenotype != null))
+                    foreach (var parent in parents.Where(x => x.genes.GenesListForReading.Any()))
                     {
-                        var babyGeneDefs = baby.genes.GenesListForReading.Select(x => x.def);
-                        var parentXeno = parent.genes.Xenotype;
-                        var parentGenes = parentXeno.genes;
-                        const float negFactor = 0.35f;
-                        float score = parentGenes.Sum(x => babyGeneDefs.Contains(x) ? 1 : 0) / (float)parentGenes.Count;
-                        var notRandomNotCosmeticBabyGenes = babyGeneDefs.Where(x => !x.randomChosen && !(x.biostatMet == 0 && x.biostatArc == 0));
-                        float negativeScore = 0;
-                        if (notRandomNotCosmeticBabyGenes.Any())
+                        var pXenotype = parent.genes.Xenotype;
+                        if (parent.genes.Xenotype != null && pXenotype != XenotypeDefOf.Baseliner && pXenotype.genes.Any())
                         {
-                            negativeScore = notRandomNotCosmeticBabyGenes.Sum(x => !parentGenes.Contains(x) ? 1 : 0) / (float)parentGenes.Count;
+                            var babyGeneDefs = baby.genes.GenesListForReading.Select(x => x.def);
+                            var parentXeno = parent.genes.Xenotype;
+                            var parentGenes = parentXeno.genes;
+                            GetScore(parentScores, parent, babyGeneDefs, parentGenes);
                         }
-                        parentScores.Add((parent, score - (negativeScore * negFactor)));
+                        else if (parent.genes.CustomXenotype != null)
+                        {
+                            var babyGeneDefs = baby.genes.GenesListForReading.Select(x => x.def);
+                            var parentXeno = parent.genes.CustomXenotype;
+                            var parentGenes = parentXeno.genes;
+                            GetScore(parentScores, parent, babyGeneDefs, parentGenes);
+                        }
+                        else if (pXenotype != XenotypeDefOf.Baseliner)
+                        {
+                            var babyGeneDefs = baby.genes.GenesListForReading.Select(x => x.def);
+                            var parentGenes = parent.genes.GenesListForReading.Select(x=>x.def).ToList();
+                            GetScore(parentScores, parent, babyGeneDefs, parentGenes);
+                        }
                     }
                     if (parentScores.Count > 0)
                     {
                         var (parent, score) = parentScores.OrderByDescending(x => x.score).First();
-                        if (score > 0.5f)
+                        
+                        baby.genes.hybrid = false;
+                        var pXenotype = parent.genes.Xenotype;
+                        if (pXenotype != null && pXenotype != XenotypeDefOf.Baseliner && pXenotype.genes.Any())
                         {
-                            baby.genes.hybrid = false;
                             baby.genes.SetXenotypeDirect(parent.genes.Xenotype);
                             if (score < 0.8f)
                             {
                                 baby.genes.xenotypeName = "Hybrid".Translate() + " " + parent.genes.Xenotype.LabelCap;
+                                if (TryFindIconDef(parent) is XenotypeIconDef iconDef)
+                                {
+                                    baby.genes.iconDef = iconDef;
+                                }
                             }
                         }
-                        else
+                        else if (parent.genes.CustomXenotype != null)
                         {
-                            baby.genes.hybrid = true;
-                            baby.genes.xenotypeName = "Hybrid".Translate();
+                            baby.genes.xenotypeName = parent.genes.CustomXenotype.name;
+                            if (score < 0.8f)
+                            {
+                                baby.genes.xenotypeName = "Hybrid".Translate() + " " + parent.genes.CustomXenotype.name;
+                            }
+                            baby.genes.iconDef = parent.genes.CustomXenotype.iconDef == XenotypeIconDefOf.Basic ? parent.genes.iconDef
+                                : parent.genes.CustomXenotype.iconDef;
                         }
+                        else if (parent.genes.xenotypeName != null)
+                        {
+                            baby.genes.xenotypeName = parent.genes.xenotypeName;
+                            string xenoName = parent.genes.xenotypeName.Replace("Hybrid".Translate(), "").Trim();
+                            if (score < 0.9f && xenoName.Any())
+                            {
+                                baby.genes.xenotypeName = "Hybrid".Translate() + " " + xenoName;
+                            }
+                            baby.genes.iconDef = parent.genes.iconDef;
+                        }
+                        baby.genes.hybrid = false;
                     }
                 }
             }
+
+            static void GetScore(List<(Pawn pawn, float score)> parentScores, Pawn parent, IEnumerable<GeneDef> babyGeneDefs, List<GeneDef> parentGenes)
+            {
+                const float negFactor = 0.35f;
+                float score = parentGenes.Sum(x => babyGeneDefs.Contains(x) ? 1 : 0) / (float)parentGenes.Count;
+                var notRandomNotCosmeticBabyGenes = babyGeneDefs.Where(x => !x.randomChosen && !(x.biostatMet == 0 && x.biostatArc == 0));
+                float negativeScore = 0;
+                if (notRandomNotCosmeticBabyGenes.Any())
+                {
+                    negativeScore = notRandomNotCosmeticBabyGenes.Sum(x => !parentGenes.Contains(x) ? 1 : 0) / (float)parentGenes.Count;
+                }
+                parentScores.Add((parent, score - (negativeScore * negFactor)));
+            }
         }
+
+        private static XenotypeIconDef TryFindIconDef(Pawn parent)
+        {
+            var iconPath = parent.genes.Xenotype.iconPath;
+            var xIconDef = DefDatabase<XenotypeIconDef>.AllDefsListForReading
+                .FirstOrDefault(x => string.Equals(x.texPath, iconPath, StringComparison.OrdinalIgnoreCase));
+            return xIconDef;
+        }
+
         [HarmonyPatch(typeof(PregnancyUtility), nameof(PregnancyUtility.GetInheritedGenes),
         [
             typeof(Pawn),
