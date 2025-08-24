@@ -201,6 +201,20 @@ namespace BGInheritance
 
                 // Integrate all the Xenogenes, turning them into Endogenes.
                 IntegrateGenes(geneTracker);
+                if (settings.removeOverride)
+                {
+                    List<Gene> allGenes = [.. geneTracker.GenesListForReading];
+                    // Remove all overridden genes from the baby pawn.
+                    foreach (var gene in geneTracker.GenesListForReading
+                        .Where(x =>
+                            x.Overridden &&
+                            // Make sure we don't remove overriden genes that are overriden via the prerequisite system or something.
+                            allGenes.Contains(x.overriddenByGene))
+                        .ToList())
+                    {
+                        geneTracker.RemoveGene(gene);
+                    }
+                }
             }
             else
             {
@@ -228,7 +242,7 @@ namespace BGInheritance
             // Iterrate through all the genes and make sure all prerequisites are met.
             foreach (var gene in geneTracker.GenesListForReading.Where(x => x.def.prerequisite != null))
             {
-                if (!geneTracker.GenesListForReading.Select(x => x.def).Contains(gene.def.prerequisite))
+                if (!geneTracker.GenesListForReading.Any(x => x.def == x.def.prerequisite))
                 {
                     toRemoveDueToMissingPrerequsite.Add(gene.def);
                 }

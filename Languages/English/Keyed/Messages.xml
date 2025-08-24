@@ -8,4 +8,5 @@
   <BGI_ParentBGeneInheritanceChanceMin>Min % from second (random) parent</BGI_ParentBGeneInheritanceChanceMin>
   <BGI_ParentBGeneInheritanceChanceMax>Max % from second (random) parent</BGI_ParentBGeneInheritanceChanceMax>
   <BGI_ResetSettings>Reset to Default</BGI_ResetSettings>
+  <BGI_RemoveOverridden>Remove overridden genes</BGI_RemoveOverridden>
 </LanguageData>
