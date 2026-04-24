@@ -19,5 +19,10 @@ namespace BGInheritance
             HarmonyPatches.InheritancePrefix(ref geneDefs, parentA, parentB, ref _);
             return geneDefs;
         }
+
+        public static void TrySetXenotypeBasedOnParents(Pawn baby, List<Pawn> parents)
+        {
+            XenotypeHandling.SetXenotypIconEtc(baby, parents);
+        }
     }
 }
