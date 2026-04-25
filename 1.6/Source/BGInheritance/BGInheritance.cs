@@ -51,6 +51,9 @@ namespace BGInheritance
             settings.metabolismLimit = (int)listStd.Slider(settings.metabolismLimit, -99, 0);
 
             listStd.GapLine();
+            listStd.CheckboxLabeled("BGI_AllPawnsBinaryInheritance".Translate(), ref settings.useBinaryInheritanceOnly, 0);
+
+            listStd.GapLine();
             listStd.CheckboxLabeled("BGI_ConsiderOnlyXenoEndo".Translate(), ref settings.ignoreCustomGenCats, 0);
 
             listStd.End();
@@ -67,6 +70,7 @@ namespace BGInheritance
             settings.metabolismLimit = BGInheritance.metabolismLimitDefault;
             settings.removeOverride = BGInheritance.removeOverrideDefault;
             settings.ignoreCustomGenCats = BGInheritance.ignoreCustomGenCatsDefault;
+            settings.useBinaryInheritanceOnly = BGInheritance.useBinaryInheritanceOnlyDefault;
         }
 
         public override string SettingsCategory()
@@ -101,6 +105,9 @@ namespace BGInheritance
         public const bool ignoreCustomGenCatsDefault = false;
         public bool ignoreCustomGenCats = ignoreCustomGenCatsDefault;
 
+        public const bool useBinaryInheritanceOnlyDefault = false;
+        public bool useBinaryInheritanceOnly = useBinaryInheritanceOnlyDefault;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -112,6 +119,7 @@ namespace BGInheritance
             Scribe_Values.Look(ref metabolismLimit, "metabolismLimit", metabolismLimitDefault);
             Scribe_Values.Look(ref removeOverride, "removeOverriden", removeOverrideDefault);
             Scribe_Values.Look(ref ignoreCustomGenCats, "ignoreCustomGeneCats", ignoreCustomGenCatsDefault);
+            Scribe_Values.Look(ref useBinaryInheritanceOnly, "useBinaryInheritanceOnly", ignoreCustomGenCatsDefault);
         }
     }
 }

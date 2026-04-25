@@ -9,5 +9,7 @@
   <BGI_ParentBGeneInheritanceChanceMax>Max % from second (random) parent</BGI_ParentBGeneInheritanceChanceMax>
   <BGI_ResetSettings>Reset to Default</BGI_ResetSettings>
   <BGI_RemoveOverridden>Remove overridden genes</BGI_RemoveOverridden>
+  <BGI_AllPawnsBinaryInheritance>Make ALL pawns ONLY use binary inheritance logic.</BGI_AllPawnsBinaryInheritance>
+
   <BGI_ConsiderOnlyXenoEndo>Directly fetch Endo+Xeno Gene Lists (compat)</BGI_ConsiderOnlyXenoEndo>
 </LanguageData>

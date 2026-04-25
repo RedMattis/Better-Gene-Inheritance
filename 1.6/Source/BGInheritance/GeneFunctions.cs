@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using static BGInheritance.BGIDefs;
 
 namespace BGInheritance
 {
@@ -44,13 +45,19 @@ namespace BGInheritance
             var geneDefsA = geneSetA.Select(x => x.def).ToList();
             var geneDefsB = geneSetB.Select(x => x.def).ToList();
 
-            bool parentAHasDominantGenes = geneSetA.Any(x => x.Active && (x.def.defName == "BGI_DominantGenes" || x.def.defName == "VRE_DominantGenome"));
-            bool parentAHasRecessiveGenes = geneSetA.Any(x => x.Active && (x.def.defName == "BGI_RecessiveGenes" || x.def.defName == "VRE_RecessiveGenome"));
-            bool parentAHasBinaryGenes = geneSetA.Any(x => x.Active && x.def.defName == "BGI_BinaryInheritance");
+            bool parentAHasDominantGenes = geneSetA.Any(x => x.Active && (x.def == BGI_DominantGenes || x.def.defName == "VRE_DominantGenome"));
+            bool parentAHasRecessiveGenes = geneSetA.Any(x => x.Active && (x.def == BGI_RecessiveGenes || x.def.defName == "VRE_RecessiveGenome"));
+            bool parentAHasBinaryGenes = geneSetA.Any(x => x.Active && x.def == BGI_BinaryInheritance);
 
-            bool parentBHasDominantGenes = geneSetB.Any(x => x.Active && (x.def.defName == "BGI_DominantGenes" || x.def.defName == "VRE_DominantGenome"));
-            bool parentBHasRecessiveGenes = geneSetB.Any(x => x.Active && (x.def.defName == "BGI_RecessiveGenes" || x.def.defName == "VRE_RecessiveGenome"));
-            bool parentBHasBinaryGenes = geneSetB.Any(x => x.Active && x.def.defName == "BGI_BinaryInheritance");
+            bool parentBHasDominantGenes = geneSetB.Any(x => x.Active && (x.def == BGI_DominantGenes || x.def.defName == "VRE_DominantGenome"));
+            bool parentBHasRecessiveGenes = geneSetB.Any(x => x.Active && (x.def == BGI_RecessiveGenes || x.def.defName == "VRE_RecessiveGenome"));
+            bool parentBHasBinaryGenes = geneSetB.Any(x => x.Active && x.def == BGI_BinaryInheritance);
+
+            if (settings.useBinaryInheritanceOnly)
+            {
+                parentAHasBinaryGenes = true;
+                parentBHasBinaryGenes = true;
+            }
 
             if (parentAHasDominantGenes && !parentBHasDominantGenes)
             {
@@ -108,7 +115,6 @@ namespace BGInheritance
                 }
             }
 
-
             // Remove other blacklisted genetypes
             // Check each gene via reflection to see if they have a property named "IsMutation" or "IsEvolution" if the property exists at all, remove them.
             geneDefsA.RemoveAll(x => AccessTools.Property(x.GetType(), "IsMutation") != null || AccessTools.Property(x.GetType(), "IsEvolution") != null);
@@ -135,10 +141,6 @@ namespace BGInheritance
                 RemoveAllGenes(geneTracker);
             }
             ClearCachedGenes(geneTracker);
-            if (geneTracker.GenesListForReading.Any())
-            {
-                ClearCachedGenes(geneTracker);
-            }
 
             // Just to be sure.
             geneTracker.Xenogenes.Clear();
@@ -254,46 +256,6 @@ namespace BGInheritance
                 Gene toRemove = toRemoveDueToMissingPrerequsite[i];
                 geneTracker.RemoveGene(toRemove);
             }
-        }
-
-        public static int Round(this float value)
-        {
-            return (int)Math.Round(value, MidpointRounding.AwayFromZero);
-        }
-
-
-        public static List<Gene> GetAllActiveEndoGenes(Pawn_GeneTracker geneTracker)
-        {
-            List<Gene> result = new List<Gene>();
-            //if (pawn.genes == null) return result;
-
-            var genes = geneTracker?.Endogenes;
-            if (genes == null) return result;
-            for (int i = 0; i < genes.Count; i++)
-            {
-                if (genes[i].Active)
-                {
-                    result.Add(genes[i]);
-                }
-            }
-            return result;
-        }
-
-        public static List<Gene> GetAllActiveGenes(Pawn_GeneTracker geneTracker)
-        {
-            List<Gene> result = new List<Gene>();
-            //if (pawn.genes == null) return result;
-
-            var genes = geneTracker?.GenesListForReading;
-            if (genes == null) return result;
-            for (int i = 0; i < genes.Count; i++)
-            {
-                if (genes[i].Active)
-                {
-                    result.Add(genes[i]);
-                }
-            }
-            return result;
         }
 
         /// <summary>
