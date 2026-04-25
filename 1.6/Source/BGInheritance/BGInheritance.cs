@@ -36,6 +36,7 @@ namespace BGInheritance
             {
                 ResetToDefault();
             }
+            listStd.GapLine();
             CreateSettingsSlider(listStd,"BGI_ParentBGeneInheritanceChanceMin".Translate(), ref settings.secondMinPercent, min:-1f, max:2f, (f) => $"{f:F2}");
             CreateSettingsSlider(listStd, "BGI_ParentBGeneInheritanceChanceMax".Translate(), ref settings.secondMaxPercent, min:-1f, max:2f, (f) => $"{f:F2}");
 
@@ -45,9 +46,13 @@ namespace BGInheritance
             CreateSettingsSlider(listStd, "BGI_InheritArchite".Translate(), ref settings.inheritArchiteGenes, min: -0f, max: 1f, (f) => $"{f:F2}");
 
             listStd.CheckboxLabeled("BGI_RemoveOverridden".Translate(), ref settings.removeOverride, 0);
-
+            listStd.GapLine();
             listStd.Label("BGI_MetabolismLimit".Translate() + ": " + settings.metabolismLimit);
             settings.metabolismLimit = (int)listStd.Slider(settings.metabolismLimit, -99, 0);
+
+            listStd.GapLine();
+            listStd.CheckboxLabeled("BGI_ConsiderOnlyXenoEndo".Translate(), ref settings.ignoreCustomGenCats, 0);
+
             listStd.End();
             base.DoSettingsWindowContents(inRect);
         }
@@ -61,6 +66,7 @@ namespace BGInheritance
             settings.inheritXenoGenes = BGInheritance.inheritXenoGenesDefault;
             settings.metabolismLimit = BGInheritance.metabolismLimitDefault;
             settings.removeOverride = BGInheritance.removeOverrideDefault;
+            settings.ignoreCustomGenCats = BGInheritance.ignoreCustomGenCatsDefault;
         }
 
         public override string SettingsCategory()
@@ -83,6 +89,7 @@ namespace BGInheritance
         public float secondMaxPercent = secondMaxPercentDefault;
         public int metabolismLimit = metabolismLimitDefault;
         public const bool removeOverrideDefault = true;
+        
 
         public const bool inheritSharedArchiteGenesDefault = true;
         public const float inheritArchiteGenesDefault = 1f;
@@ -91,6 +98,8 @@ namespace BGInheritance
         public const float secondMaxPercentDefault = 1f;
         public const int metabolismLimitDefault = -4;
         public bool removeOverride = removeOverrideDefault;
+        public const bool ignoreCustomGenCatsDefault = false;
+        public bool ignoreCustomGenCats = ignoreCustomGenCatsDefault;
 
         public override void ExposeData()
         {
@@ -102,6 +111,7 @@ namespace BGInheritance
             Scribe_Values.Look(ref inheritXenoGenes, "inheritXenoGenesNum", inheritXenoGenesDefault);
             Scribe_Values.Look(ref metabolismLimit, "metabolismLimit", metabolismLimitDefault);
             Scribe_Values.Look(ref removeOverride, "removeOverriden", removeOverrideDefault);
+            Scribe_Values.Look(ref ignoreCustomGenCats, "ignoreCustomGeneCats", ignoreCustomGenCatsDefault);
         }
     }
 }

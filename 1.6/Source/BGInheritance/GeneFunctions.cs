@@ -107,7 +107,7 @@ namespace BGInheritance
                     geneDefsB.RemoveAt(i);
                 }
             }
-            
+
 
             // Remove other blacklisted genetypes
             // Check each gene via reflection to see if they have a property named "IsMutation" or "IsEvolution" if the property exists at all, remove them.
@@ -122,30 +122,34 @@ namespace BGInheritance
             int maximum = (int)(parentBGeneCount * settings.secondMaxPercent);
             int numberOfGenesToTransfer = Mathf.Clamp(Rand.RangeInclusive(minimum, maximum), 0, parentBGeneCount);
 
-            var request = new PawnGenerationRequest(PawnKindDefOf.Colonist, Faction.OfPlayer, PawnGenerationContext.NonPlayer, -1, forceGenerateNewPawn: false, allowDead: false, allowDowned: true, canGeneratePawnRelations: true, mustBeCapableOfViolence: false, 1f, forceAddFreeWarmLayerIfNeeded: false, allowGay: true, allowPregnant: false, allowFood: true, allowAddictions: true, inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false, worldPawnFactionDoesntMatter: false, 0f, 0f, null, 1f, null, null, null, null, null, null, null, null, null, null, null, null, forceNoIdeo: false, forceNoBackstory: false, forbidAnyTitle: false, forceDead: false, null, null, null, null, null, 0f, DevelopmentalStage.Newborn);
-            Pawn babyPawn = PawnGenerator.GeneratePawn(request);
+            var request = new PawnGenerationRequest(PawnKindDefOf.Colonist, Faction.OfPlayer, PawnGenerationContext.NonPlayer, -1, forceGenerateNewPawn: true, allowDead: false, allowDowned: true, canGeneratePawnRelations: false, mustBeCapableOfViolence: false, 1f, forceAddFreeWarmLayerIfNeeded: false, allowGay: true, allowPregnant: false, allowFood: true, allowAddictions: true, inhabitant: false, certainlyBeenInCryptosleep: false, forceRedressWorldPawnIfFormerColonist: false, worldPawnFactionDoesntMatter: false, 0f, 0f, null, 1f, null, null, null, null, null, null, null, null, null, null, null, null, forceNoIdeo: false, forceNoBackstory: false, forbidAnyTitle: false, forceDead: false, null, null, null, null, null, 0f, DevelopmentalStage.Baby);
+            Pawn fakeBaby = PawnGenerator.GeneratePawn(request);
 
-            // Create new GeneTracker
-            //Pawn_GeneTracker geneTracker = new();
-
-            var geneTracker = babyPawn.genes;
+            var geneTracker = fakeBaby.genes;
 
             // Remove all genes from the dummy pawn
-            foreach (var gene in geneTracker.GenesListForReading.ToList())
+            RemoveAllGenes(geneTracker);
+            ClearCachedGenes(geneTracker);
+            if (geneTracker.GenesListForReading.Any())
             {
-                geneTracker.RemoveGene(gene);
+                RemoveAllGenes(geneTracker);
+            }
+            ClearCachedGenes(geneTracker);
+            if (geneTracker.GenesListForReading.Any())
+            {
+                ClearCachedGenes(geneTracker);
             }
 
             // Just to be sure.
             geneTracker.Xenogenes.Clear();
             geneTracker.Endogenes.Clear();
+            
 
             // Add all genes from parentA to the dummy pawn
             foreach (var gene in geneDefsA)
             {
                 geneTracker.AddGene(gene, false);
             }
-            int endoMet = GetAllActiveEndoGenes(geneTracker).Sum(x => x.def.biostatMet);
 
             // If the dummy pawn has any gene not from the mother delete it. It is probably a hair or skin gene that the 
             // game pulled out of a magic hat.
@@ -153,10 +157,9 @@ namespace BGInheritance
             {
                 geneTracker.RemoveGene(gene);
             }
-
             if (parentA != parentB)
             {
-                // Add 25-75% of genes from father to the dummy pawn as xenogenes
+                // Add 25-75% of genes from ParentB to the dummy pawn as xenogenes
                 int count = 0;
                 var bGenes = new List<GeneDef>();
                 while (count < numberOfGenesToTransfer && geneDefsB.Count > 0)
@@ -175,17 +178,6 @@ namespace BGInheritance
                     geneTracker.AddGene(gene, true);
                 }
 
-                //GetAllActiveGenes(geneTracker).Sum(x => x.def.biostatMet);
-
-                var finalXegenes = geneTracker.Xenogenes.Select(x => x.def).ToList();
-
-                geneTracker.Xenogenes.Clear();
-
-                foreach (var gene in finalXegenes)
-                {
-                    geneTracker.AddGene(gene, true);
-                }
-
                 // Remove all overriden genes from the baby pawn. If it is a random chosen gene, there is a 50% chance it will be kept anyway.
                 // Not keeping all, because that just bloats the gene list too much.
                 foreach (var gene in geneTracker.GenesListForReading.Where(x => x.Overridden && (Rand.Chance(0.5f) && !x.def.randomChosen)).ToList())
@@ -194,9 +186,9 @@ namespace BGInheritance
                 }
 
                 RemoveDueToMissingPrerequsite(geneTracker);
-                RemoveRandomToMetabolism(0, geneTracker, minMet: settings.metabolismLimit, exclusionList: genesSharedByBothParents);
+                RemoveRandomToMetabolism(geneTracker, minMet: settings.metabolismLimit, exclusionList: genesSharedByBothParents);
                 RemoveDueToMissingPrerequsite(geneTracker);
-                RemoveRandomToMetabolism(0, geneTracker, minMet: settings.metabolismLimit);
+                RemoveRandomToMetabolism(geneTracker, minMet: settings.metabolismLimit);
                 RemoveDueToMissingPrerequsite(geneTracker);
 
                 // Integrate all the Xenogenes, turning them into Endogenes.
@@ -221,8 +213,8 @@ namespace BGInheritance
                 parentB = null;
             }
 
-            // Destroy baby
-            babyPawn.Destroy();
+            // Destroy fake baby
+            fakeBaby.Destroy();
 
             var allGeneDefsOnDummy = geneTracker.GenesListForReading.Select(x => x.def).ToList();
 
@@ -234,20 +226,34 @@ namespace BGInheritance
             }
 
             return allGeneDefsOnDummy;
+
+            static void RemoveAllGenes(Pawn_GeneTracker geneTracker)
+            {
+                var allGenes = geneTracker.GenesListForReading.ToList();
+                for (int i = 0; i < allGenes.Count; i++)
+                {
+                    Gene gene = allGenes[i];
+                    geneTracker.RemoveGene(gene);
+                }
+            }
         }
 
         private static void RemoveDueToMissingPrerequsite(Pawn_GeneTracker geneTracker)
         {
-            var toRemoveDueToMissingPrerequsite = new List<GeneDef>();
+            var toRemoveDueToMissingPrerequsite = new List<Gene>();
             // Iterrate through all the genes and make sure all prerequisites are met.
             foreach (var gene in geneTracker.GenesListForReading.Where(x => x.def.prerequisite != null))
             {
-                if (!geneTracker.GenesListForReading.Any(x => x.def == x.def.prerequisite))
+                if (geneTracker.GenesListForReading.Any(x => x.def == gene.def.prerequisite) == false)
                 {
-                    toRemoveDueToMissingPrerequsite.Add(gene.def);
+                    toRemoveDueToMissingPrerequsite.Add(gene);
                 }
             }
-            geneTracker.GenesListForReading.RemoveAll(x => toRemoveDueToMissingPrerequsite.Contains(x.def));
+            for (int i = toRemoveDueToMissingPrerequsite.Count - 1; i >= 0; i--)
+            {
+                Gene toRemove = toRemoveDueToMissingPrerequsite[i];
+                geneTracker.RemoveGene(toRemove);
+            }
         }
 
         public static int Round(this float value)
@@ -290,27 +296,62 @@ namespace BGInheritance
             return result;
         }
 
-        public static void RemoveRandomToMetabolism(int initialMet, Pawn_GeneTracker genes, int minMet = -6, List<GeneDef> exclusionList = null)
+        /// <summary>
+        /// In case of something messing with the GeneListForReading state.
+        /// </summary>
+        static void ClearCachedGenes(Pawn_GeneTracker gTracker) => Traverse.Create(gTracker).Field("cachedGenes").SetValue(null);
+
+        public static void RemoveRandomToMetabolism(Pawn_GeneTracker genes, int minMet = -6, List<GeneDef> exclusionList = null)
         {
-            exclusionList ??= new List<GeneDef>();
-            int idx = 0;
-            // Sum up the metabolism cost of the new genes
-            while (genes.GenesListForReading.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet) + initialMet < minMet || idx > 200)
+            var settings = BGInheritanceMain.settings;
+            int GetCurrentMetabolism()
             {
+                if (settings.ignoreCustomGenCats)
+                {
+                    return genes.Endogenes.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet)
+                        + genes.Xenogenes.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet);
+                }
+                else
+                {
+                    ClearCachedGenes(genes);
+                    return genes.GenesListForReading.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet);
+                }
+            }
+            Gene TryGetGeneWithCost()
+            {
+                var possibleGenes = genes.GenesListForReading.Where(x => x.def.biostatMet < 0 && !exclusionList.Contains(x.def));
+                return possibleGenes.Any() ? possibleGenes.RandomElement() : null;
+            }
+            int metabolismInitial = GetCurrentMetabolism();
+
+            if (metabolismInitial >= minMet)
+                return;
+
+            exclusionList ??= [];
+            int idx = 0;
+
+            // Sum up the metabolism cost of the new genes
+            while (GetCurrentMetabolism() < minMet)
+            {
+                
                 if (genes.GenesListForReading.Count <= 1)
                     break;
                 // Pick a random gene from the newGenes with a negative metabolism cost and remove it.
-                var geneToRemove = genes.GenesListForReading.Where(x => x.def.biostatMet < 0 && !exclusionList.Contains(x.def)).RandomElement();
+                var geneToRemove = TryGetGeneWithCost();
                 if (geneToRemove != null)
                 {
+                    //Log.Message($"DEBUG: Removing gene {geneToRemove.def.label} with metabolism cost {geneToRemove.def.biostatMet}.\n" +
+                    //    $"Metabolism before removal was {GetCurrentMetabolism()}. Target is {minMet}. Pre-removal-start metabolism was {metabolismInitial}");
                     genes.RemoveGene(geneToRemove);
-                    Log.Message($"DEBUG: Removed gene {geneToRemove.def.label} with metabolism cost {geneToRemove.def.biostatMet}. New metabololism level is {genes.GenesListForReading.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet)}");
                 }
                 else
                 {
                     break;
                 }
-                idx++;  // Ensure we don't get stuck in an infinite loop no matter what.
+                // Make sure the while exists if something prevents the genes being removed.
+                idx++;
+                if (idx > 200)
+                    break;
             }
         }
 

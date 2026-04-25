@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using static BGInheritance.BGIDefs;
 
 namespace BGInheritance
 {
@@ -30,9 +31,6 @@ namespace BGInheritance
                 }
             }
         }
-        
-
-        
 
         [HarmonyPatch(typeof(PregnancyUtility), nameof(PregnancyUtility.GetInheritedGenes),
         [
@@ -61,15 +59,9 @@ namespace BGInheritance
                 }
 
                 success = true;
-
-                // Get GeneTracker order
                 (var primaryTracker, var secondaryTracker) = GetGeneTrackerOrder(tracker1, tracker2);
 
                 __result = GeneFunctions.GetChildGenes(primaryTracker, secondaryTracker);
-                //Log.Message($"Generated genes for child:\n" +
-                //            $"Genes: {__result.Count}\n" +
-                //            $"Metabolism: {__result.Sum(x => x.biostatMet)}\n" +
-                //            $"Archite: {__result.Sum(x => x.biostatArc)}\n");
                 return false;
             }
             catch (Exception e)
@@ -90,14 +82,14 @@ namespace BGInheritance
             }
             catch (Exception)
             {
-                // Honestly don't care. They are probably a robot or something without genes.
+                // Honestly we don't care. They are probably a robot or something without genes.
             }
 
-            bool parentAHasPrimaryGenes = parentA.GenesListForReading.Any(x => x.def.defName == "BGI_PrimaryGenes");
-            bool parentBHasPrimaryGenes = parentB.GenesListForReading.Any(x => x.def.defName == "BGI_PrimaryGenes");
+            bool parentAHasPrimaryGenes = parentA.GenesListForReading.Any(x => x.def == BGI_PrimaryGenes);
+            bool parentBHasPrimaryGenes = parentB.GenesListForReading.Any(x => x.def == BGI_PrimaryGenes);
 
-            bool parentAHasSecondaryGenes = parentA.GenesListForReading.Any(x => x.def.defName == "BGI_SecondaryGenes");
-            bool parentBHasSecondaryGenes = parentB.GenesListForReading.Any(x => x.def.defName == "BGI_SecondaryGenes");
+            bool parentAHasSecondaryGenes = parentA.GenesListForReading.Any(x => x.def == BGI_SecondaryGenes);
+            bool parentBHasSecondaryGenes = parentB.GenesListForReading.Any(x => x.def == BGI_SecondaryGenes);
 
             // If any pawn is a baseliner, they are always the primary parent.
             if (!parentAHasPrimaryGenes && !parentBHasPrimaryGenes && !parentAHasSecondaryGenes && !parentBHasSecondaryGenes)
@@ -122,11 +114,11 @@ namespace BGInheritance
             }
             else if (parentAHasSecondaryGenes && !parentBHasSecondaryGenes)
             {
-                return (parentA, parentB);
+                return (parentB, parentA);
             }
             else if (!parentAHasSecondaryGenes && parentBHasSecondaryGenes)
             {
-                return (parentB, parentA);
+                return (parentA, parentB);
             }
 
             if (Rand.Chance(0.5f))
