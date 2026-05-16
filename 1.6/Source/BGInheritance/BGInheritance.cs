@@ -69,7 +69,6 @@ namespace BGInheritance
             settings.inheritXenoGenes = BGInheritance.inheritXenoGenesDefault;
             settings.metabolismLimit = BGInheritance.metabolismLimitDefault;
             settings.removeOverride = BGInheritance.removeOverrideDefault;
-            settings.ignoreCustomGenCats = BGInheritance.ignoreCustomGenCatsDefault;
             settings.useBinaryInheritanceOnly = BGInheritance.useBinaryInheritanceOnlyDefault;
         }
 
@@ -102,8 +101,6 @@ namespace BGInheritance
         public const float secondMaxPercentDefault = 1f;
         public const int metabolismLimitDefault = -4;
         public bool removeOverride = removeOverrideDefault;
-        public const bool ignoreCustomGenCatsDefault = false;
-        public bool ignoreCustomGenCats = ignoreCustomGenCatsDefault;
 
         public const bool useBinaryInheritanceOnlyDefault = false;
         public bool useBinaryInheritanceOnly = useBinaryInheritanceOnlyDefault;
@@ -119,7 +116,7 @@ namespace BGInheritance
             Scribe_Values.Look(ref metabolismLimit, "metabolismLimit", metabolismLimitDefault);
             Scribe_Values.Look(ref removeOverride, "removeOverriden", removeOverrideDefault);
             Scribe_Values.Look(ref ignoreCustomGenCats, "ignoreCustomGeneCats", ignoreCustomGenCatsDefault);
-            Scribe_Values.Look(ref useBinaryInheritanceOnly, "useBinaryInheritanceOnly", ignoreCustomGenCatsDefault);
+            Scribe_Values.Look(ref useBinaryInheritanceOnly, "useBinaryInheritanceOnly", useBinaryInheritanceOnlyDefault);
         }
     }
 }

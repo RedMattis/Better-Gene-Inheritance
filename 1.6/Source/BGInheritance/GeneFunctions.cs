@@ -268,16 +268,8 @@ namespace BGInheritance
             var settings = BGInheritanceMain.settings;
             int GetCurrentMetabolism()
             {
-                if (settings.ignoreCustomGenCats)
-                {
-                    return genes.Endogenes.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet)
-                        + genes.Xenogenes.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet);
-                }
-                else
-                {
-                    ClearCachedGenes(genes);
-                    return genes.GenesListForReading.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet);
-                }
+                ClearCachedGenes(genes);
+                return genes.GenesListForReading.Where(x => x.Overridden == false).Sum(x => x.def.biostatMet);
             }
             Gene TryGetGeneWithCost()
             {
