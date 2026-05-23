@@ -53,9 +53,6 @@ namespace BGInheritance
             listStd.GapLine();
             listStd.CheckboxLabeled("BGI_AllPawnsBinaryInheritance".Translate(), ref settings.useBinaryInheritanceOnly, 0);
 
-            listStd.GapLine();
-            listStd.CheckboxLabeled("BGI_ConsiderOnlyXenoEndo".Translate(), ref settings.ignoreCustomGenCats, 0);
-
             listStd.End();
             base.DoSettingsWindowContents(inRect);
         }
@@ -115,7 +112,6 @@ namespace BGInheritance
             Scribe_Values.Look(ref inheritXenoGenes, "inheritXenoGenesNum", inheritXenoGenesDefault);
             Scribe_Values.Look(ref metabolismLimit, "metabolismLimit", metabolismLimitDefault);
             Scribe_Values.Look(ref removeOverride, "removeOverriden", removeOverrideDefault);
-            Scribe_Values.Look(ref ignoreCustomGenCats, "ignoreCustomGeneCats", ignoreCustomGenCatsDefault);
             Scribe_Values.Look(ref useBinaryInheritanceOnly, "useBinaryInheritanceOnly", useBinaryInheritanceOnlyDefault);
         }
     }
